@@ -141,7 +141,7 @@ export class CanvasRenderer {
             this.ctx.fillStyle = color;
             this.ctx.fillRect(x, y, COLOR_WIDTH, COLOR_HEIGHT);
             // Traço sutil para contraste
-            this.ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            // this.ctx.strokeStyle = 'rgba(255,255,255,0.25)';
             this.ctx.lineWidth = 1;
             this.ctx.strokeRect(x + 0.5, y + 0.5, COLOR_WIDTH - 1, COLOR_HEIGHT - 1);
         });
