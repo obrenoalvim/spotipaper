@@ -26,6 +26,38 @@ export class SpotifyWallpaperApp {
     }
 
     /**
+     * Restaura os controles de personalização para os valores padrão
+     * e descarta quaisquer customizações anteriores
+     */
+    resetCustomizationToDefaults() {
+        const defaults = {
+            bgColor: '#000000',
+            accentColor: '#1db954',
+            gradientStrength: '1',
+            gradientDirection: 'vertical',
+            textColor: 'light',
+            vignetteIntensity: '0.4',
+            showPalette: 'true'
+        };
+
+        const bgColor = document.getElementById('bgColor');
+        const accentColor = document.getElementById('accentColor');
+        const gradientStrength = document.getElementById('gradientStrength');
+        const gradientDirection = document.getElementById('gradientDirection');
+        const textColor = document.getElementById('textColor');
+        const vignetteIntensity = document.getElementById('vignetteIntensity');
+        const showPalette = document.getElementById('showPalette');
+
+        if (bgColor) bgColor.value = defaults.bgColor;
+        if (accentColor) accentColor.value = defaults.accentColor;
+        if (gradientStrength) gradientStrength.value = defaults.gradientStrength;
+        if (gradientDirection) gradientDirection.value = defaults.gradientDirection;
+        if (textColor) textColor.value = defaults.textColor;
+        if (vignetteIntensity) vignetteIntensity.value = defaults.vignetteIntensity;
+        if (showPalette) showPalette.value = defaults.showPalette;
+    }
+
+    /**
      * Lê valores do painel de personalização
      */
     getCustomizationSettings() {
@@ -66,7 +98,7 @@ export class SpotifyWallpaperApp {
 
         // Botão de gerar wallpaper
         document.getElementById('generateBtn').addEventListener('click', () => {
-            this.generateWallpaper();
+            this.generateWallpaper(true);
         });
 
         // Botão de download
@@ -86,8 +118,9 @@ export class SpotifyWallpaperApp {
         // Enter no campo de URL
         urlInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !document.getElementById('generateBtn').disabled) {
-                this.generateWallpaper();
-            }        });
+                this.generateWallpaper(true);
+            }
+        });
         // Reagir às mudanças de personalização
         const customIds = ['bgColor','accentColor','gradientStrength','gradientDirection','textColor','vignetteIntensity','showPalette'];
         customIds.forEach(id => {
@@ -110,7 +143,7 @@ export class SpotifyWallpaperApp {
     /**
      * Gera wallpaper baseado na URL do Spotify
      */
-    async generateWallpaper() {
+    async generateWallpaper(reset = false) {
         const url = document.getElementById('spotifyUrl').value.trim();
         
         if (!url) {
@@ -128,9 +161,15 @@ export class SpotifyWallpaperApp {
         hideError();
 
         try {
+            if (reset) {
+                // Resetar UI e estado para defaults, descartando opções anteriores
+                this.resetCustomizationToDefaults();
+                // Limpar canvas/background anterior garantindo estado limpo
+                await this.renderer.reset();
+            }
+
             let trackData;
-            
-            // Tentar usar API autenticada primeiro, depois fallback para oEmbed
+
             if (this.auth.isAuthenticated()) {
                 // Obter dados baseado no tipo (track ou album)
                 if (parsed.type === 'track') {
@@ -166,6 +205,12 @@ export class SpotifyWallpaperApp {
                 durationText: trackData.durationMs ? msToText(trackData.durationMs) : '—',
                 spotifyCodeImageUrl: generateSpotifyCodeUrl(trackData.spotifyUrl)
             };
+
+            // Se for um novo wallpaper, ajustar acento para a cor dominante extraída
+            if (reset && this.currentTrackData?.dominant) {
+                const accentEl = document.getElementById('accentColor');
+                if (accentEl) accentEl.value = this.currentTrackData.dominant;
+            }
 
             // Renderizar wallpaper
             await this.renderer.renderWallpaper(this.currentTrackData, this.getCustomizationSettings());
@@ -216,6 +261,10 @@ export class SpotifyWallpaperApp {
                 durationText: demoData.durationMs ? msToText(demoData.durationMs) : '—',
                 spotifyCodeImageUrl: generateSpotifyCodeUrl(demoData.spotifyUrl)
             };
+
+            // Ajustar acento com base na cor dominante na renderização inicial
+            const accentEl = document.getElementById('accentColor');
+            if (accentEl && this.currentTrackData?.dominant) accentEl.value = this.currentTrackData.dominant;
 
             await this.renderer.renderWallpaper(this.currentTrackData, this.getCustomizationSettings());
             updateMetadata(this.currentTrackData);

@@ -10,6 +10,19 @@ export class CanvasRenderer {
         this.settings = {};
     }
 
+    /**
+     * Reseta o canvas e estado interno do renderer
+     */
+    async reset() {
+        const { WIDTH, HEIGHT } = CANVAS_CONFIG;
+        this.settings = {};
+        try {
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        } catch (_) { /* noop */ }
+    }
+
     getTextColor() {
         return (!this.settings || this.settings.textColor === 'light') ? '#ffffff' : '#000000';
     }
@@ -243,38 +256,6 @@ export class CanvasRenderer {
                 this.ctx.quadraticCurveTo(x, y, x + radius, y);
                 this.ctx.closePath();
                 
-                this.ctx.save();
-                this.ctx.clip();
-                this.ctx.drawImage(img, x, y, width, height);
-                this.ctx.restore();
-                
-                resolve();
-            };
-            
-            img.onerror = () => reject(new Error('Erro ao carregar capa'));
-            img.src = src;
-        });
-    }
-
-    /**
-     * Desenha imagem simples
-     */
-    async drawImage(src, x, y, width, height) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.referrerPolicy = 'no-referrer';
-            img.crossOrigin = 'anonymous';
-            
-            img.onload = () => {
-                this.ctx.drawImage(img, x, y, width, height);
-   raticCurveTo(x + width, y + height, x + width - radius, y + height);
-                this.ctx.lineTo(x + radius, y + height);
-                this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-                this.ctx.lineTo(x, y + radius);
-                this.ctx.quadraticCurveTo(x, y, x + radius, y);
-                this.ctx.closePath();
-                
-                // Clipar e desenhar
                 this.ctx.save();
                 this.ctx.clip();
                 this.ctx.drawImage(img, x, y, width, height);
