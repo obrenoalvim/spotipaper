@@ -11,7 +11,6 @@ import {
     showError, 
     hideError, 
     updateMetadata, 
-    generatePrompt, 
     downloadWallpaper 
 } from './utils/ui-utils.js';
 
@@ -131,7 +130,6 @@ export class SpotifyWallpaperApp {
             
             // Atualizar interface
             updateMetadata(this.currentTrackData);
-            generatePrompt(this.currentTrackData);
             
             // Habilitar download
             document.getElementById('downloadBtn').disabled = false;
@@ -179,7 +177,6 @@ export class SpotifyWallpaperApp {
 
             await this.renderer.renderWallpaper(this.currentTrackData);
             updateMetadata(this.currentTrackData);
-            generatePrompt(this.currentTrackData);
             document.getElementById('downloadBtn').disabled = false;
         } catch (e) {
             console.warn('Simulação inicial falhou:', e);

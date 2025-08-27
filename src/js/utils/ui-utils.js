@@ -48,41 +48,6 @@ export function updateMetadata(data) {
 }
 
 /**
- * Gera prompt para IA de imagens
- * @param {Object} data - Dados da música/álbum
- */
-export function generatePrompt(data) {
-    const prompt = `Criar wallpaper minimalista para smartphone com as seguintes especificações:
-
-**Dados da Música/Álbum:**
-- Título: ${data.trackTitle}
-- Artista: ${data.subtitleText}
-- Duração: ${data.durationText}
-- URL Spotify: ${data.spotifyUrl}
-
-**Paleta de Cores:**
-- Cor dominante: ${data.dominant}
-- Cores da paleta: ${data.palette.join(', ')}
-
-**Layout (1080×1920px):**
-- Fundo: gradiente vertical do preto (#000000) no topo para ${data.dominant} no rodapé
-- Topo esquerdo: 5 retângulos coloridos (56×20px, 8px de espaçamento) nas cores: ${data.palette.join(', ')}
-- Topo direito: texto "${data.durationText}" em branco, caixa alta
-- Centro-superior: título "${data.trackTitle.toUpperCase()}" em branco, fonte grande e bold
-- Abaixo do título: subtítulo "${data.subtitleText.toUpperCase()}" em branco, fonte menor
-- Centro: capa do álbum quadrada com cantos arredondados (24px de raio)
-- Abaixo da capa: Spotify Code (código de barras do Spotify)
-
-**URL da Capa:** ${data.albumCover}
-**URL do Spotify Code:** ${data.spotifyCodeImageUrl}
-
-**Estilo:** Layout minimalista, preciso, sem elementos extras, tipografia moderna Inter/system-ui, alto contraste, vinheta sutil nas bordas, margens laterais de 64px, espaçamentos proporcionais, resolução exata 1080×1920px.`;
-
-    document.getElementById('promptTextarea').value = prompt;
-    document.getElementById('promptSection').style.display = 'block';
-}
-
-/**
  * Faz download do wallpaper
  * @param {Object} currentTrackData - Dados da música atual
  */
