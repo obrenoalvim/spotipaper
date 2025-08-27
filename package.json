@@ -1,5 +1,5 @@
 {
-  "name": "vite-starter",
+  "name": "spotify-wallpaper-generator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,6 +12,6 @@
     "vite": "^5.4.2"
   },
   "dependencies": {
-    "getenv": "^2.0.0"
+    "colorthief": "^2.4.0"
   }
 }

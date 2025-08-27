@@ -55,8 +55,8 @@ class CanvasRenderer {
             WIDTH/2, HEIGHT/2, 0, 
             WIDTH/2, HEIGHT/2, WIDTH * 0.8
         );
-        vignetteGradient.addColorStop(0, 'rgba(0,0,0,0)');
-        vignetteGradient.addColorStop(1, 'rgba(0,0,0,0.4)');
+        vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
         this.ctx.fillStyle = vignetteGradient;
         this.ctx.fillRect(0, 0, WIDTH, HEIGHT);
     }

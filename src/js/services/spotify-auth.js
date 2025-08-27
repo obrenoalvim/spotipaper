@@ -1,18 +1,10 @@
 // ===== GERENCIAMENTO DE AUTENTICAÇÃO SPOTIFY =====
-// Acessa configuração de forma segura sem depender de variável global direta
-const __CFG__ = (typeof window !== 'undefined' && window.SPOTIFY_CONFIG)
-    ? window.SPOTIFY_CONFIG
-    : {
-        CLIENT_ID: '',
-        REDIRECT_URI: (typeof window !== 'undefined' ? window.location.origin : ''),
-        SCOPES: '',
-        API_BASE_URL: 'https://api.spotify.com/v1',
-        AUTH_URL: 'https://accounts.spotify.com/authorize',
-        TOKEN_URL: 'https://accounts.spotify.com/api/token'
-      };
 
+import { SPOTIFY_CONFIG } from '../config.js';
+import { generateRandomString, generateCodeChallenge } from '../utils/crypto-utils.js';
+import { showError } from '../utils/ui-utils.js';
 
-class SpotifyAuth {
+export class SpotifyAuth {
     constructor() {
         this.accessToken = null;
         this.init();
@@ -38,18 +30,18 @@ class SpotifyAuth {
 
         sessionStorage.setItem('code_verifier', codeVerifier);
 
-        if (!__CFG__.CLIENT_ID || !__CFG__.REDIRECT_URI) {
-            showError('Configuração do Spotify ausente. Defina CLIENT_ID e REDIRECT_URI em config.js.');
+        if (!SPOTIFY_CONFIG.CLIENT_ID || !SPOTIFY_CONFIG.REDIRECT_URI) {
+            showError('Configuração do Spotify ausente. Defina CLIENT_ID e REDIRECT_URI nas variáveis de ambiente.');
             return;
         }
 
-        const authUrl = new URL(__CFG__.AUTH_URL);
-        authUrl.searchParams.append('client_id', __CFG__.CLIENT_ID);
+        const authUrl = new URL(SPOTIFY_CONFIG.AUTH_URL);
+        authUrl.searchParams.append('client_id', SPOTIFY_CONFIG.CLIENT_ID);
         authUrl.searchParams.append('response_type', 'code');
-        authUrl.searchParams.append('redirect_uri', __CFG__.REDIRECT_URI);
+        authUrl.searchParams.append('redirect_uri', SPOTIFY_CONFIG.REDIRECT_URI);
         authUrl.searchParams.append('code_challenge_method', 'S256');
         authUrl.searchParams.append('code_challenge', codeChallenge);
-        authUrl.searchParams.append('scope', __CFG__.SCOPES);
+        authUrl.searchParams.append('scope', SPOTIFY_CONFIG.SCOPES);
 
         window.location = authUrl;
     }
@@ -75,16 +67,16 @@ class SpotifyAuth {
             }
 
             try {
-                const response = await fetch(__CFG__.TOKEN_URL, {
+                const response = await fetch(SPOTIFY_CONFIG.TOKEN_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: new URLSearchParams({
-                        client_id: __CFG__.CLIENT_ID,
+                        client_id: SPOTIFY_CONFIG.CLIENT_ID,
                         grant_type: 'authorization_code',
                         code: code,
-                        redirect_uri: __CFG__.REDIRECT_URI,
+                        redirect_uri: SPOTIFY_CONFIG.REDIRECT_URI,
                         code_verifier: codeVerifier,
                     }),
                 });
@@ -157,104 +149,5 @@ class SpotifyAuth {
         this.accessToken = null;
         sessionStorage.removeItem('spotify_access_token');
         this.updateAuthStatus(false);
-    }
-}
-
-// ===== API SPOTIFY =====
-
-class SpotifyAPI {
-    constructor(auth) {
-        this.auth = auth;
-    }
-
-    /**
-     * Faz chamada para API do Spotify
-     * @param {string} endpoint - Endpoint da API
-     * @returns {Promise<Object>} Resposta da API
-     */
-    async apiCall(endpoint) {
-        if (!this.auth.isAuthenticated()) {
-            throw new Error('Token de acesso não disponível');
-        }
-
-        const response = await fetch(`${__CFG__.API_BASE_URL}${endpoint}`, {
-            headers: {
-                'Authorization': `Bearer ${this.auth.getAccessToken()}`,
-            },
-        });
-
-        if (response.status === 401) {
-            // Token expirado
-            this.auth.logout();
-            throw new Error('Token expirado. Faça login novamente.');
-        }
-
-        if (!response.ok) {
-            throw new Error(`Erro da API: ${response.status}`);
-        }
-
-        return response.json();
-    }
-
-    /**
-     * Obtém dados de uma música
-     * @param {string} trackId - ID da música
-     * @returns {Promise<Object>} Dados da música
-     */
-    async getTrackData(trackId) {
-        const data = await this.apiCall(`/tracks/${trackId}`);
-        
-        return {
-            type: 'track',
-            id: data.id,
-            trackTitle: data.name,
-            subtitleText: data.artists.map(artist => artist.name).join(', '),
-            durationMs: data.duration_ms,
-            albumCover: data.album.images[0]?.url,
-            spotifyUrl: data.external_urls.spotify
-        };
-    }
-
-    /**
-     * Obtém dados de um álbum
-     * @param {string} albumId - ID do álbum
-     * @returns {Promise<Object>} Dados do álbum
-     */
-    async getAlbumData(albumId) {
-        const albumData = await this.apiCall(`/albums/${albumId}`);
-        
-        // Obter todas as faixas do álbum (com paginação se necessário)
-        let totalDurationMs = 0;
-        let tracks = albumData.tracks.items;
-        let nextUrl = albumData.tracks.next;
-        
-        // Somar duração das faixas da primeira página
-        tracks.forEach(track => {
-            totalDurationMs += track.duration_ms;
-        });
-        
-        // Paginar se necessário
-        while (nextUrl) {
-            const response = await fetch(nextUrl, {
-                headers: {
-                    'Authorization': `Bearer ${this.auth.getAccessToken()}`,
-                },
-            });
-            const pageData = await response.json();
-            
-            pageData.items.forEach(track => {
-                totalDurationMs += track.duration_ms;
-            });
-            
-            nextUrl = pageData.next;
-        }
-
-        return {            type: 'album',
-            id: albumData.id,            trackTitle: albumData.name,
-            subtitleText: albumData.artists.map(artist => artist.name).join(', '),
-            durationMs: totalDurationMs,
-            albumCover: albumData.images[0]?.url,
-            spotifyUrl: albumData.external_urls.spotify
-        };
     }
 }

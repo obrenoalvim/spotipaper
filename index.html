@@ -1,95 +1,86 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Wallpaper Spotify</title>
-    <!-- <link rel="stylesheet" href="public/styles.css"> -->
-    <link rel="stylesheet" href="public/style.css">
-    <!-- <link rel="stylesheet" href="public/styles.css"> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Gerador de Wallpaper Spotify</h1>
-            <p>Crie wallpapers personalizados com paleta de cores extraída das suas músicas e álbuns favoritos</p>
-        </div>
-
-        <div class="main-content">
-            <div class="left-panel">
-                <!-- Seção de Autenticação -->
-                <div class="auth-section" id="authSection">
-                    <div class="auth-status">
-                        <div class="status-indicator" id="statusIndicator"></div>
-                        <span id="authStatus">Desconectado do Spotify</span>
-                    </div>
-                    <button class="btn" id="authBtn">Conectar com Spotify</button>
-                </div>
-
-                <!-- Mensagem de Erro -->
-                <div class="error" id="errorMessage"></div>
-
-                <!-- Entrada de URL -->
-                <div class="input-group">
-                    <label for="spotifyUrl">URL do Spotify (Música ou Álbum)</label>
-                    <input type="text" id="spotifyUrl" placeholder="https://open.spotify.com/track/..." />
-                </div>
-
-                <button class="btn" id="generateBtn">Gerar Wallpaper</button>
-
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Gerando wallpaper...</p>
-                </div>
-
-                <div class="prompt-section" id="promptSection" style="display: none;">
-                    <h3>Prompt para IA de Imagens</h3>
-                    <textarea class="prompt-textarea" id="promptTextarea" readonly></textarea>
-                </div>
-
-                <!-- Como Funciona -->
-                <div class="how-it-works">
-                    <h3>Como Funciona</h3>
-                    <ol>
-                        <li>Conecte-se com sua conta Spotify</li>
-                        <li>Cole a URL de uma música ou álbum do Spotify</li>
-                        <li>A app extrai os metadados e a capa do álbum</li>
-                        <li>Uma paleta de cores é gerada automaticamente</li>
-                        <li>Um wallpaper 1080×1920 é criado com design minimalista</li>
-                        <li>Baixe sua criação personalizada</li>
-                    </ol>
-                </div>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>Gerador de Wallpaper Spotify</h1>
+                <p>Crie wallpapers personalizados com paleta de cores extraída das suas músicas e álbuns favoritos</p>
             </div>
 
-            <div class="right-panel">
-                <canvas id="canvas" width="1080" height="1920"></canvas>
+            <div class="main-content">
+                <div class="left-panel">
+                    <!-- Seção de Autenticação -->
+                    <div class="auth-section" id="authSection">
+                        <div class="auth-status">
+                            <div class="status-indicator" id="statusIndicator"></div>
+                            <span id="authStatus">Desconectado do Spotify</span>
+                        </div>
+                        <button class="btn" id="authBtn">Conectar com Spotify</button>
+                    </div>
 
-                <div class="metadata" id="metadata" style="display: none;">
-                    <h3>Metadados</h3>
-                    <p><strong>Título:</strong> <span id="metaTitle">-</span></p>
-                    <p><strong>Artista:</strong> <span id="metaArtist">-</span></p>
-                    <p><strong>Duração:</strong> <span id="metaDuration">-</span></p>
-                    <p><strong>Cor Dominante:</strong> <span id="metaColor">-</span></p>
+                    <!-- Mensagem de Erro -->
+                    <div class="error" id="errorMessage"></div>
+
+                    <!-- Entrada de URL -->
+                    <div class="input-group">
+                        <label for="spotifyUrl">URL do Spotify (Música ou Álbum)</label>
+                        <input type="text" id="spotifyUrl" placeholder="https://open.spotify.com/track/..." />
+                    </div>
+
+                    <button class="btn" id="generateBtn">Gerar Wallpaper</button>
+
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Gerando wallpaper...</p>
+                    </div>
+
+                    <div class="prompt-section" id="promptSection" style="display: none;">
+                        <h3>Prompt para IA de Imagens</h3>
+                        <textarea class="prompt-textarea" id="promptTextarea" readonly></textarea>
+                    </div>
+
+                    <!-- Como Funciona -->
+                    <div class="how-it-works">
+                        <h3>Como Funciona</h3>
+                        <ol>
+                            <li>Conecte-se com sua conta Spotify</li>
+                            <li>Cole a URL de uma música ou álbum do Spotify</li>
+                            <li>A app extrai os metadados e a capa do álbum</li>
+                            <li>Uma paleta de cores é gerada automaticamente</li>
+                            <li>Um wallpaper 1080×1920 é criado com design minimalista</li>
+                            <li>Baixe sua criação personalizada</li>
+                        </ol>
+                    </div>
                 </div>
 
-                <div class="download-btn">
-                    <button class="btn" id="downloadBtn" disabled>Baixar PNG</button>
+                <div class="right-panel">
+                    <canvas id="canvas" width="1080" height="1920"></canvas>
+
+                    <div class="metadata" id="metadata" style="display: none;">
+                        <h3>Metadados</h3>
+                        <p><strong>Título:</strong> <span id="metaTitle">-</span></p>
+                        <p><strong>Artista:</strong> <span id="metaArtist">-</span></p>
+                        <p><strong>Duração:</strong> <span id="metaDuration">-</span></p>
+                        <p><strong>Cor Dominante:</strong> <span id="metaColor">-</span></p>
+                    </div>
+
+                    <div class="download-btn">
+                        <button class="btn" id="downloadBtn" disabled>Baixar PNG</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ColorThief via CDN -->
-    <script type="module" src="https://unpkg.com/colorthief@2.3.0/dist/color-thief.umd.js"></script>
-
-    <!-- Scripts da aplicação -->
-    <script type="module" src="public/config.js"></script>
-    <script type="module" src="public/utils.js"></script>
-    <script type="module" src="public/canvas-renderer.js"></script>
-    <script type="module" src="public/app.js"></script>
+    <script type="module" src="/src/main.js"></script>
 </body>
-
-
 </html>
