@@ -11,7 +11,8 @@ import {
     showError, 
     hideError, 
     updateMetadata, 
-    downloadWallpaper 
+    downloadWallpaper, 
+    copyPromptToClipboard
 } from './utils/ui-utils.js';
 
 export class SpotifyWallpaperApp {
@@ -22,6 +23,22 @@ export class SpotifyWallpaperApp {
         this.currentTrackData = null;
         
         this.init();
+    }
+
+    /**
+     * Lê valores do painel de personalização
+     */
+    getCustomizationSettings() {
+        return {
+            bgColor: document.getElementById('bgColor')?.value || undefined,
+            accentColor: document.getElementById('accentColor')?.value || undefined,
+            gradientStrength: parseFloat(document.getElementById('gradientStrength')?.value || '1'),
+            gradientDirection: document.getElementById('gradientDirection')?.value || 'vertical',
+            textColor: document.getElementById('textColor')?.value || 'light',
+            vignetteIntensity: parseFloat(document.getElementById('vignetteIntensity')?.value || '0.4'),
+            vignette: true,
+            showPalette: (document.getElementById('showPalette')?.value || 'true') === 'true',
+        };
     }
 
     /**
@@ -57,14 +74,39 @@ export class SpotifyWallpaperApp {
             downloadWallpaper(this.currentTrackData);
         });
 
+        // Validação em tempo real da URL
+        const urlInput = document.getElementById('spotifyUrl');
+        urlInput.addEventListener('input', () => {
+            const value = urlInput.value.trim();
+            const valid = !!parseSpotifyUrl(value);
+            urlInput.classList.toggle('is-valid', valid);
+            urlInput.classList.toggle('is-invalid', value.length > 0 && !valid);            urlInput.setAttribute('aria-invalid', String(!valid && value.length > 0));
+        });
+
         // Enter no campo de URL
-        document.getElementById('spotifyUrl').addEventListener('keypress', (e) => {
+        urlInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !document.getElementById('generateBtn').disabled) {
                 this.generateWallpaper();
+            }        });
+        // Reagir às mudanças de personalização
+        const customIds = ['bgColor','accentColor','gradientStrength','gradientDirection','textColor','vignetteIntensity','showPalette'];
+        customIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => this.rerenderWithCurrentSettings());
+                el.addEventListener('change', () => this.rerenderWithCurrentSettings());
             }
         });
-    }
 
+    }
+    /**
+     * Re-renderiza usando dados atuais + personalização
+     */
+    async rerenderWithCurrentSettings() {
+        if (!this.currentTrackData) return;
+        const settings = this.getCustomizationSettings();
+        await this.renderer.renderWallpaper(this.currentTrackData, settings);
+    }
     /**
      * Gera wallpaper baseado na URL do Spotify
      */
@@ -121,12 +163,12 @@ export class SpotifyWallpaperApp {
             this.currentTrackData = {
                 ...trackData,
                 ...colorData,
-                durationText: msToText(trackData.durationMs),
+                durationText: trackData.durationMs ? msToText(trackData.durationMs) : '—',
                 spotifyCodeImageUrl: generateSpotifyCodeUrl(trackData.spotifyUrl)
             };
 
             // Renderizar wallpaper
-            await this.renderer.renderWallpaper(this.currentTrackData);
+            await this.renderer.renderWallpaper(this.currentTrackData, this.getCustomizationSettings());
             
             // Atualizar interface
             updateMetadata(this.currentTrackData);
@@ -175,7 +217,7 @@ export class SpotifyWallpaperApp {
                 spotifyCodeImageUrl: generateSpotifyCodeUrl(demoData.spotifyUrl)
             };
 
-            await this.renderer.renderWallpaper(this.currentTrackData);
+            await this.renderer.renderWallpaper(this.currentTrackData, this.getCustomizationSettings());
             updateMetadata(this.currentTrackData);
             document.getElementById('downloadBtn').disabled = false;
         } catch (e) {

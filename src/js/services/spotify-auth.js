@@ -110,12 +110,18 @@ export class SpotifyAuth {
         const generateBtn = document.getElementById('generateBtn');
         const authSection = document.getElementById('authSection');
 
+        if (!statusIndicator || !authStatus || !authBtn || !generateBtn || !authSection) {
+            return;
+        }
+
         if (isAuthenticated) {
             statusIndicator.classList.add('connected');
             authStatus.textContent = 'Conectado ao Spotify';
             authBtn.textContent = 'Reconectar';
             generateBtn.disabled = false;
             authSection.classList.add('authenticated');
+            // Esconde completamente a seção de conexão quando já está autenticado
+            authSection.style.display = 'none';
         } else {
             statusIndicator.classList.remove('connected');
             authStatus.textContent = 'Desconectado do Spotify';
@@ -123,6 +129,8 @@ export class SpotifyAuth {
             // Não desabilitar o botão de gerar para permitir uso do oEmbed sem login
             // generateBtn.disabled = true;
             authSection.classList.remove('authenticated');
+            // Garante que a seção fique visível quando não autenticado
+            authSection.style.display = '';
         }
     }
 

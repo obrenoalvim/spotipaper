@@ -63,38 +63,81 @@
             </div>
 
             <div class="main-content">
-                <div class="left-panel">
+                <div class="left-panel" aria-labelledby="leftPanelHeading">
+                    <h2 id="leftPanelHeading" class="sr-only">Controles</h2>
+
+                    <!-- Personalização -->
+                    
+
                     <!-- Seção de Autenticação -->
                     <div class="auth-section" id="authSection">
                         <div class="auth-status">
-                            <div class="status-indicator" id="statusIndicator"></div>
+                            <div class="status-indicator" id="statusIndicator" aria-hidden="true"></div>
                             <span id="authStatus">Desconectado do Spotify</span>
                         </div>
                         <button class="btn" id="authBtn">Conectar com Spotify</button>
                     </div>
 
                     <!-- Mensagem de Erro -->
-                    <div class="error" id="errorMessage"></div>
+                    <div class="error" id="errorMessage" role="alert" aria-live="polite"></div>
 
                     <!-- Entrada de URL -->
                     <div class="input-group">
                         <label for="spotifyUrl">URL do Spotify (Música ou Álbum)</label>
-                        <input type="text" id="spotifyUrl" placeholder="https://open.spotify.com/track/..." />
+                        <input type="url" id="spotifyUrl" inputmode="url" placeholder="https://open.spotify.com/track/..." aria-describedby="urlHelp" />
+                        <small id="urlHelp" class="help-text">Aceita links de música ou álbum do Spotify. Ex.: https://open.spotify.com/track/...</small>
                     </div>
 
-                    <button class="btn" id="generateBtn">Gerar Wallpaper</button>
+                    <button class="btn" id="generateBtn" aria-busy="false">Gerar Wallpaper</button>
 
-                    <div class="loading" id="loading">
-                        <div class="spinner"></div>
+                    <div class="customize" id="customizePanel">
+                        <h3>Personalize</h3>
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label for="bgColor">Cor de fundo</label>
+                                <input type="color" id="bgColor" value="#000000" />
+                            </div>
+                            <div class="input-group">
+                                <label for="accentColor">Cor de acento</label>
+                                <input type="color" id="accentColor" value="#1db954" />
+                            </div>
+                            <div class="input-group">
+                                <label for="gradientStrength">Força do gradiente</label>
+                                <input type="range" id="gradientStrength" min="0" max="1" step="0.05" value="1" />
+                            </div>
+                            <div class="input-group">
+                                <label for="gradientDirection">Direção do gradiente</label>
+                                <select id="gradientDirection">
+                                    <option value="vertical" selected>Vertical</option>
+                                    <option value="horizontal">Horizontal</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="textColor">Cor do texto</label>
+                                <select id="textColor">
+                                    <option value="light" selected>Claro</option>
+                                    <option value="dark">Escuro</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="vignetteIntensity">Intensidade da vinheta</label>
+                                <input type="range" id="vignetteIntensity" min="0" max="1" step="0.05" value="0.4" />
+                            </div>
+                            <div class="input-group">
+                                <label for="showPalette">Mostrar paleta</label>
+                                <select id="showPalette">
+                                    <option value="true" selected>Sim</option>
+                                    <option value="false">Não</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="loading" aria-live="polite">
+                        <div class="spinner" aria-hidden="true"></div>
                         <p>Gerando wallpaper...</p>
                     </div>
 
-                    <div class="prompt-section" id="promptSection" style="display: none;">
-                        <h3>Prompt para IA de Imagens</h3>
-                        <textarea class="prompt-textarea" id="promptTextarea" readonly></textarea>
-                    </div>
-
-                    <!-- Como Funciona -->
                     <div class="how-it-works">
                         <h3>Como Funciona</h3>
                         <ol>
@@ -109,7 +152,7 @@
                 </div>
 
                 <div class="right-panel">
-                    <canvas id="canvas" width="1080" height="1920"></canvas>
+                    <canvas id="canvas" width="1080" height="1920" role="img" aria-label="Prévia do wallpaper gerado"></canvas>
 
                     <div class="metadata" id="metadata" style="display: none;">
                         <h3>Metadados</h3>

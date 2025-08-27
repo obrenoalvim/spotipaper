@@ -10,10 +10,14 @@ export function showLoading(show) {
     
     if (show) {
         loading.classList.add('show');
+        loading.setAttribute('aria-hidden', 'false');
         generateBtn.disabled = true;
+        generateBtn.setAttribute('aria-busy', 'true');
     } else {
         loading.classList.remove('show');
+        loading.setAttribute('aria-hidden', 'true');
         generateBtn.disabled = false;
+        generateBtn.setAttribute('aria-busy', 'false');
     }
 }
 
@@ -33,6 +37,7 @@ export function showError(message) {
 export function hideError() {
     const errorEl = document.getElementById('errorMessage');
     errorEl.classList.remove('show');
+    errorEl.textContent = '';
 }
 
 /**
@@ -42,9 +47,54 @@ export function hideError() {
 export function updateMetadata(data) {
     document.getElementById('metaTitle').textContent = data.trackTitle;
     document.getElementById('metaArtist').textContent = data.subtitleText;
-    document.getElementById('metaDuration').textContent = data.durationText;
+    document.getElementById('metaDuration').textContent = data.durationText || '—';
     document.getElementById('metaColor').textContent = data.dominant;
     document.getElementById('metadata').style.display = 'block';
+}
+
+/**
+ * Atualiza a seção de Prompt com base nos dados atuais
+ * @param {Object} data - Dados do render atual
+ */
+// export function updatePromptSection(data) {
+//     const promptSection = document.getElementById('promptSection');
+//     const textarea = document.getElementById('promptTextarea');
+
+//     if (!data) {
+//         promptSection.style.display = 'none';
+//         textarea.value = '';
+//         return;
+//     }
+
+//     const { trackTitle, subtitleText, palette = [], dominant } = data;
+//     const paletteText = palette.join(', ');
+
+//     const prompt = [
+//         `Minimalist smartphone wallpaper (1080x1920), dark theme, subtle vertical gradient blending black to ${dominant}.`,
+//         `Centered square album cover with soft rounded corners, slight vignette around edges for depth.`,
+//         `Clean typography for title and artist: "${trackTitle}" — ${subtitleText}.`,
+//         `Use this color palette for accents and tones: ${paletteText}.`,
+//         `High contrast, crisp, no watermark, no logos, photography style: studio, modern, Spotify-inspired.`
+//     ].join(' ');
+
+//     textarea.value = prompt;
+//     promptSection.style.display = 'block';
+// }
+
+/**
+ * Copia conteúdo do textarea do prompt para a área de transferência
+ */
+export async function copyPromptToClipboard() {
+    const textarea = document.getElementById('promptTextarea');
+    const btn = document.getElementById('copyPromptBtn');
+    try {
+        await navigator.clipboard.writeText(textarea.value || '');
+        const original = btn.textContent;
+        btn.textContent = 'Copiado!';
+        setTimeout(() => (btn.textContent = original), 1500);
+    } catch (e) {
+        console.warn('Falha ao copiar:', e);
+    }
 }
 
 /**
