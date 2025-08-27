@@ -1,164 +1,121 @@
 # Gerador de Wallpaper Spotify
 
-Uma aplicação web que gera wallpapers personalizados baseados em músicas e álbuns do Spotify, extraindo paletas de cores das capas dos álbuns.
+Aplicação web que gera wallpapers 1080×1920 a partir de músicas e álbuns do Spotify. O app extrai a paleta de cores da capa, cria um layout minimalista e permite baixar em PNG. Funciona mesmo sem login (via oEmbed), com dados mais completos quando autenticado.
 
-## 📁 Estrutura do Projeto
+## Funcionalidades
 
-```
-spotify-wallpaper-generator/
-├── index.html              # Arquivo HTML principal
-├── styles.css              # Estilos CSS
-├── config.js               # Configurações da aplicação
-├── utils.js                # Funções utilitárias
-├── spotify-api.js          # Gerenciamento da API do Spotify
-├── canvas-renderer.js      # Renderização do canvas
-├── app.js                  # Aplicação principal
-└── README.md              # Documentação
-```
+- Autenticação OAuth2 com PKCE (client-side) para acesso à Spotify Web API
+- Geração via fallback oEmbed quando não autenticado (sem duração total, metadados básicos)
+- Extração de cores com ColorThief (cor dominante + paleta de 5 cores)
+- Renderização em Canvas (1080×1920) com: gradiente, paleta, duração, título, artista, capa arredondada e Spotify Code
+- Interface responsiva e opção de download em PNG
 
-## 🗂️ Descrição dos Arquivos
+## Requisitos
 
-### `index.html`
-- Estrutura HTML principal da aplicação
-- Interface do usuário com painéis esquerdo e direito
-- Referências para todos os arquivos CSS e JavaScript
+- Node.js 18+ (Vite 5)
+- Conta no Spotify Developer (para usar autenticação e dados completos)
 
-### `styles.css`
-- Todos os estilos CSS da aplicação
-- Design responsivo com tema escuro
-- Animações e transições
-- Estilos para componentes específicos (botões, inputs, loading, etc.)
+## Como executar
 
-### `config.js`
-- Configurações centralizadas da aplicação
-- Configurações do Spotify (Client ID, URLs, etc.)
-- Configurações do canvas (dimensões, posições, etc.)
-- Configurações de fontes e cores
+1) Instale dependências
+- bash
+  npm install
 
-### `utils.js`
-- Funções utilitárias reutilizáveis
-- Utilitários PKCE para autenticação OAuth2
-- Funções de manipulação de URL e texto
-- Extração de paleta de cores
-- Funções de interface (loading, erros, metadados)
+2) Configure variáveis de ambiente (raiz do projeto)
+Crie um arquivo .env com as chaves a seguir. Ajuste o REDIRECT_URI conforme seu ambiente (desenvolvimento e produção) e inclua os mesmos valores na aba Redirect URIs do app no Spotify Developer Dashboard.
+- env
+  VITE_CLIENT_ID=SEU_CLIENT_ID_DO_SPOTIFY
+  VITE_REDIRECT_URI=http://localhost:5173
+  VITE_SCOPES=user-read-private
 
-### `spotify-api.js`
-- Classes para gerenciamento da autenticação Spotify
-- `SpotifyAuth`: Gerencia OAuth2 com PKCE
-- `SpotifyAPI`: Faz chamadas para a API do Spotify
-- Métodos para obter dados de músicas e álbuns
+3) Ambiente de desenvolvimento
+- bash
+  npm run dev
 
-### `canvas-renderer.js`
-- Classe `CanvasRenderer` para renderização do wallpaper
-- Métodos para desenhar cada elemento do wallpaper
-- Renderização de gradientes, texto, imagens
-- Suporte a imagens com cantos arredondados
+4) Build de produção e preview
+- bash
+  npm run build
+  npm run preview
 
-### `app.js`
-- Classe principal `SpotifyWallpaperApp`
-- Orquestra todas as funcionalidades
-- Gerencia event listeners
-- Coordena o fluxo de geração de wallpapers
+Após subir em produção, lembre-se de atualizar o VITE_REDIRECT_URI e o Redirect URI no dashboard da Spotify.
 
-## 🚀 Como Usar
+## Como usar
 
-1. **Configuração do Spotify**:
-   - Edite o arquivo `config.js`
-   - Substitua `CLIENT_ID` pelo seu Client ID do Spotify
-   - Ajuste `REDIRECT_URI` conforme necessário
+- Opcional: clique em “Conectar com Spotify” para autenticar e obter metadados completos (ex.: duração)
+- Cole a URL de uma música ou de um álbum do Spotify, por exemplo:
+  - https://open.spotify.com/track/...
+  - https://open.spotify.com/album/...
+- Clique em “Gerar Wallpaper” e aguarde a extração da paleta e a renderização
+- Clique em “Baixar PNG” para salvar o resultado
 
-2. **Executar a aplicação**:
-   - Abra `index.html` em um servidor web local
-   - Conecte-se com sua conta Spotify
-   - Cole uma URL de música ou álbum do Spotify
-   - Clique em "Gerar Wallpaper"
-   - Baixe o resultado em PNG
+Sem login, a aplicação usa oEmbed do Spotify para obter metadados básicos (sem duração). Com login, usa a Web API para obter dados completos (músicas e álbuns, incluindo soma de duração das faixas de um álbum).
 
-## 🛠️ Funcionalidades
+## Estrutura do projeto
 
-- **Autenticação OAuth2**: Integração segura com Spotify usando PKCE
-- **Extração de Cores**: Paleta automática das capas dos álbuns
-- **Renderização Canvas**: Wallpaper 1080×1920px com design minimalista
-- **Suporte a Músicas e Álbuns**: Funciona com ambos os tipos de conteúdo
-- **Interface Responsiva**: Design adaptável para diferentes telas
-- **Geração de Prompt**: Prompt para IA de imagens baseado nos dados
+- Raiz
+  - index.html — HTML de entrada (Vite)
+  - package.json — scripts e dependências
+  - vercel.json — configuração de deploy (opcional)
+  - .env — variáveis locais (não commitar)
+  - dist/ — artefatos de build
+- src/
+  - main.js — bootstrap do app
+  - styles/main.css — estilos da interface
+  - js/config.js — constantes (canvas, fontes, cores) e SPOTIFY_CONFIG
+  - js/app.js — classe principal SpotifyWallpaperApp
+  - js/services/
+    - spotify-auth.js — fluxo OAuth2 PKCE (login, token)
+    - spotify-api.js — chamadas à Spotify Web API e oEmbed
+    - canvas-renderer.js — desenho no Canvas (layout do wallpaper)
+  - js/utils/
+    - color-utils.js — extração de paleta via ColorThief
+    - format-utils.js — formatação (tempo, quebra de texto)
+    - spotify-utils.js — parse de URLs e Spotify Codes
+    - crypto-utils.js — utilitários PKCE (SHA-256, challenge)
+    - ui-utils.js — loading, erro, metadados, download
 
-## 🎨 Elementos do Wallpaper
+Observação: a pasta dist/ contém a versão empacotada pelo Vite; não edite arquivos nela manualmente.
 
-- Fundo com gradiente vertical (preto → cor dominante)
-- Paleta de 5 cores no topo esquerdo
-- Duração no topo direito
-- Título da música/álbum (centralizado, grande)
-- Nome do artista (abaixo do título)
-- Capa do álbum (centro, cantos arredondados)
-- Spotify Code (abaixo da capa)
-- Vinheta sutil nas bordas
+## Detalhes técnicos relevantes
 
-## 📋 Dependências
+- Autenticação
+  - PKCE (sem client secret) com code_verifier/code_challenge
+  - Token guardado em sessionStorage; expiração derruba sessão e exige novo login
+- Fallback oEmbed
+  - Sem necessidade de token; retorna thumbnail da capa e título/autor
+- Canvas e ColorThief
+  - As imagens são carregadas com crossOrigin='anonymous' e referrerPolicy='no-referrer'
+  - A extração de cores e o export PNG dependem de CORS correto nas imagens de capa
+- Spotify Codes
+  - O código é renderizado via URL pública scannables.scdn.co; verifique termos de uso do Spotify Codes antes de usar em produção
 
-- **ColorThief**: Extração de paleta de cores (via CDN)
-- **Spotify Web API**: Dados de músicas e álbuns
-- **Canvas API**: Renderização do wallpaper
+## Limitações e troubleshooting
 
-## 🔧 Personalização
+- CORS em capas: se a imagem não permitir CORS, a extração de cores e/ou o download do canvas podem falhar. Tente outra faixa/álbum ou hospede/roteie imagens com cabeçalhos adequados.
+- Redirect URI: precisa ser idêntico ao configurado no Spotify Dashboard (inclusive protocolo/porta). Em dev, use http://localhost:5173.
+- Token expirado: ao receber 401, a app faz logout e pede novo login.
+- oEmbed: fornece metadados limitados; duração pode aparecer como “—”.
 
-### Modificar Cores
-Edite as constantes em `config.js`:
-```javascript
-const COLOR_CONFIG = {
-    BACKGROUND: '#000000',
-    TEXT: '#ffffff',
-    SPOTIFY_GREEN: '#1db954'
-};
-```
+## Personalização rápida
 
-### Ajustar Layout
-Modifique as configurações do canvas em `config.js`:
-```javascript
-const CANVAS_CONFIG = {
-    WIDTH: 1080,
-    HEIGHT: 1920,
-    MARGINS: { SIDE: 64, TOP: 120 }
-};
-```
+- Dimensões/layout: src/js/config.js (CANVAS_CONFIG)
+- Cores e fontes: src/js/config.js (COLOR_CONFIG, FONT_CONFIG)
+- Lógica de desenho: src/js/services/canvas-renderer.js
 
-### Personalizar Fontes
-Altere as configurações de fonte em `config.js`:
-```javascript
-const FONT_CONFIG = {
-    TITLE: 'bold 48px Inter, system-ui',
-    SUBTITLE: '28px Inter, system-ui'
-};
-```
+## Dependências principais
 
-## 🔒 Segurança
+- Vite 5 (bundler e dev server)
+- ColorThief (extração de paleta)
+- Spotify Web API e oEmbed
 
-- Utiliza OAuth2 com PKCE (sem client secret)
-- Tokens armazenados apenas no sessionStorage
-- Todas as requisições são feitas client-side
-- Não há armazenamento permanente de dados sensíveis
+## Contribuição
 
-## 📱 Compatibilidade
+- Abra issues/PRs descrevendo claramente a mudança
+- Mantenha o padrão de código e a separação por camadas (services/utils)
+- Atualize este README quando alterar comportamento de build/execução
 
-- Navegadores modernos com suporte a:
-  - Canvas API
-  - Fetch API
-  - Web Crypto API (para PKCE)
-  - ES6+ (classes, async/await, etc.)
+## Avisos
 
-## 🤝 Contribuição
-
-Para contribuir com o projeto:
-
-1. Mantenha a separação de responsabilidades entre arquivos
-2. Documente novas funções e classes
-3. Siga as convenções de nomenclatura existentes
-4. Teste em diferentes navegadores
-5. Atualize este README se necessário
-
-## ⚠️ Avisos Importantes
-
-- **Spotify Codes**: A URL dos códigos pode ser alterada pelo Spotify sem aviso
-- **Rate Limiting**: Respeite os limites da API do Spotify
-- **Termos de Uso**: Verifique os termos do Spotify antes de usar em produção
-- **CORS**: Algumas funcionalidades podem requerer servidor web local
+- Respeite termos e políticas do Spotify (Web API e Spotify Codes)
+- Não commitar .env e credenciais
+- Teste em navegadores modernos (Canvas, Web Crypto, ES Modules)
