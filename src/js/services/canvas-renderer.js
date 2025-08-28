@@ -1,4 +1,3 @@
-// ===== RENDERIZADOR DE CANVAS =====
 
 import { CANVAS_CONFIG, FONT_CONFIG, COLOR_CONFIG } from '../config.js';
 import { wrapText } from '../utils/format-utils.js';
@@ -10,81 +9,61 @@ export class CanvasRenderer {
         this.settings = {};
     }
 
-    /**
-     * Reseta o canvas e estado interno do renderer
-     */
-    async reset() {
+        async reset() {
         const { WIDTH, HEIGHT } = CANVAS_CONFIG;
         this.settings = {};
         try {
             this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             this.ctx.globalCompositeOperation = 'source-over';
             this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        } catch (_) { /* noop */ }
+        } catch (_) {  }
     }
 
     getTextColor() {
         return (!this.settings || this.settings.textColor === 'light') ? '#ffffff' : '#000000';
     }
 
-    /**
-     * Renderiza o wallpaper completo
-     * @param {Object} data - Dados da música/álbum
-     * @param {Object} settings - Configurações de personalização
-     */
-    async renderWallpaper(data, settings = null) {
+        async renderWallpaper(data, settings = null) {
         const { WIDTH, HEIGHT } = CANVAS_CONFIG;
         this.settings = settings || {};
 
-        // Resetar estado do canvas
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.globalCompositeOperation = 'source-over';
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = 'high';
         this.ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-        // Fundo base
-        const baseBg = this.settings.bgColor || COLOR_CONFIG.BACKGROUND;
+                const baseBg = this.settings.bgColor || COLOR_CONFIG.BACKGROUND;
         this.ctx.fillStyle = baseBg;
         this.ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // Gradiente de fundo
-        this.renderBackground(data);
+                this.renderBackground(data);
 
-        // Vinheta
-        this.renderVignette();
+                this.renderVignette();
 
-        // Paleta
-        if (!this.settings || this.settings.showPalette !== false) {
+                if (!this.settings || this.settings.showPalette !== false) {
             this.renderColorPalette(data.palette || []);
         }
 
-        // Duração
-        if (data.durationText && data.durationText !== '—' && data.durationText !== '0 MIN 00 S') {
+                if (data.durationText && data.durationText !== '—' && data.durationText !== '0 MIN 00 S') {
             this.renderDuration(data.durationText);
         }
 
-        // Título e subtítulo
-        const titleBottomY = this.renderTitle(data.trackTitle || '');
+                const titleBottomY = this.renderTitle(data.trackTitle || '');
         this.renderSubtitle(data.subtitleText || '', titleBottomY);
 
-        // Capa
-        await this.renderAlbumCover(data.albumCover);
+                await this.renderAlbumCover(data.albumCover);
 
-        // Spotify Code
-        await this.renderSpotifyCode(data.spotifyCodeImageUrl);
+                await this.renderSpotifyCode(data.spotifyCodeImageUrl);
     }
 
-    /**
-     * Renderiza fundo com gradiente com base nas configurações
-     */
-    renderBackground(data) {
+        renderBackground(data) {
         const { WIDTH, HEIGHT } = CANVAS_CONFIG;
         const gradientStrength = typeof this.settings.gradientStrength === 'number' ? this.settings.gradientStrength : 1;
         const accent = this.settings.accentColor || data.dominant || COLOR_CONFIG.ACCENT || '#1db954';
-        const direction = this.settings.gradientDirection || 'vertical'; // 'vertical' | 'horizontal'
-
+        
         let grad;
+        const direction = this.settings.gradientDirection || 'vertical';
         if (direction === 'horizontal') {
             grad = this.ctx.createLinearGradient(0, 0, WIDTH, 0);
         } else {
@@ -94,7 +73,6 @@ export class CanvasRenderer {
         const baseBg = this.settings.bgColor || COLOR_CONFIG.BACKGROUND;
         grad.addColorStop(0, baseBg);
 
-        // Misturar cor base com acento pela força do gradiente
         const mix = (c1, c2, t) => {
             const toRgb = (hex) => hex.replace('#','').match(/.{2}/g).map(n => parseInt(n,16));
             const [r1,g1,b1] = toRgb(c1);
@@ -111,12 +89,9 @@ export class CanvasRenderer {
         this.ctx.fillRect(0, 0, WIDTH, HEIGHT);
     }
 
-    /**
-     * Renderiza vinheta nas bordas
-     */
-    renderVignette() {
+        renderVignette() {
         if (this.settings && this.settings.vignette === false) return;
-        const intensity = typeof this.settings.vignetteIntensity === 'number' ? this.settings.vignetteIntensity : 0.4; // 0..1
+        const intensity = typeof this.settings.vignetteIntensity === 'number' ? this.settings.vignetteIntensity : 0.4;
         const { WIDTH, HEIGHT } = CANVAS_CONFIG;
         
         const vignetteGradient = this.ctx.createRadialGradient(
@@ -129,10 +104,7 @@ export class CanvasRenderer {
         this.ctx.fillRect(0, 0, WIDTH, HEIGHT);
     }
 
-    /**
-     * Renderiza paleta de cores no topo esquerdo
-     */
-    renderColorPalette(palette) {
+        renderColorPalette(palette) {
         const { START_X, START_Y, COLOR_WIDTH, COLOR_HEIGHT, COLOR_GAP } = CANVAS_CONFIG.PALETTE;
 
         (palette || []).slice(0, 5).forEach((color, index) => {
@@ -140,17 +112,12 @@ export class CanvasRenderer {
             const y = START_Y;
             this.ctx.fillStyle = color;
             this.ctx.fillRect(x, y, COLOR_WIDTH, COLOR_HEIGHT);
-            // Traço sutil para contraste
-            // this.ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-            this.ctx.lineWidth = 1;
+                        this.ctx.lineWidth = 1;
             this.ctx.strokeRect(x + 0.5, y + 0.5, COLOR_WIDTH - 1, COLOR_HEIGHT - 1);
         });
     }
 
-    /**
-     * Renderiza duração no topo direito
-     */
-    renderDuration(durationText) {
+        renderDuration(durationText) {
         const { WIDTH } = CANVAS_CONFIG;
         const { START_Y, COLOR_HEIGHT } = CANVAS_CONFIG.PALETTE;
 
@@ -161,11 +128,7 @@ export class CanvasRenderer {
         this.ctx.fillText(durationText, WIDTH - CANVAS_CONFIG.MARGINS.SIDE, START_Y + COLOR_HEIGHT/2);
     }
 
-    /**
-     * Renderiza título
-     * Retorna a coordenada Y inferior do bloco do título para posicionar o subtítulo
-     */
-    renderTitle(title) {
+        renderTitle(title) {
         const { WIDTH } = CANVAS_CONFIG;
         const { START_Y, COLOR_HEIGHT } = CANVAS_CONFIG.PALETTE;
         const titleY = START_Y + COLOR_HEIGHT + 60;
@@ -186,10 +149,7 @@ export class CanvasRenderer {
         return titleY + (titleLines.length * 55) + 10;
     }
 
-    /**
-     * Renderiza subtítulo (artista)
-     */
-    renderSubtitle(subtitle, startY) {
+        renderSubtitle(subtitle, startY) {
         const { WIDTH } = CANVAS_CONFIG;
         const subtitleY = startY ?? (CANVAS_CONFIG.PALETTE.START_Y + CANVAS_CONFIG.PALETTE.COLOR_HEIGHT + 60);
 
@@ -207,20 +167,14 @@ export class CanvasRenderer {
         });
     }
 
-    /**
-     * Renderiza capa do álbum
-     */
-    async renderAlbumCover(albumCoverUrl) {
+        async renderAlbumCover(albumCoverUrl) {
         const { WIDTH } = CANVAS_CONFIG;
         const { SIZE, BORDER_RADIUS, Y_POSITION } = CANVAS_CONFIG.COVER;
         const coverX = (WIDTH - SIZE) / 2;
         await this.drawRoundedImage(albumCoverUrl, coverX, Y_POSITION, SIZE, SIZE, BORDER_RADIUS);
     }
 
-    /**
-     * Renderiza Spotify Code
-     */
-    async renderSpotifyCode(spotifyCodeUrl) {
+        async renderSpotifyCode(spotifyCodeUrl) {
         const { WIDTH } = CANVAS_CONFIG;
         const { Y_POSITION, SIZE } = CANVAS_CONFIG.COVER;
         const { WIDTH: CODE_WIDTH, HEIGHT: CODE_HEIGHT, Y_OFFSET } = CANVAS_CONFIG.SPOTIFY_CODE;
@@ -234,10 +188,7 @@ export class CanvasRenderer {
         this.ctx.restore();
     }
 
-    /**
-     * Desenha imagem com cantos arredondados
-     */
-    async drawRoundedImage(src, x, y, width, height, radius) {
+        async drawRoundedImage(src, x, y, width, height, radius) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
@@ -269,15 +220,7 @@ export class CanvasRenderer {
         });
     }
 
-    /**
-     * Desenha imagem simples
-     * @param {string} src - URL da imagem
-     * @param {number} x - Posição X
-     * @param {number} y - Posição Y
-     * @param {number} width - Largura
-     * @param {number} height - Altura
-     */
-    async drawImage(src, x, y, width, height) {
+        async drawImage(src, x, y, width, height) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.referrerPolicy = 'no-referrer';
@@ -289,7 +232,6 @@ export class CanvasRenderer {
             };
             
             img.onerror = () => {
-                // Se falhar ao carregar Spotify Code, apenas continua
                 console.warn('Não foi possível carregar Spotify Code');
                 resolve();
             };

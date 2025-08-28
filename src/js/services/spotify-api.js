@@ -1,4 +1,3 @@
-// ===== API SPOTIFY =====
 
 import { SPOTIFY_CONFIG } from '../config.js';
 
@@ -7,12 +6,7 @@ export class SpotifyAPI {
         this.auth = auth;
     }
 
-    /**
-     * Faz chamada para API do Spotify
-     * @param {string} endpoint - Endpoint da API
-     * @returns {Promise<Object>} Resposta da API
-     */
-    async apiCall(endpoint) {
+        async apiCall(endpoint) {
         if (!this.auth.isAuthenticated()) {
             throw new Error('Token de acesso não disponível');
         }
@@ -24,8 +18,7 @@ export class SpotifyAPI {
         });
 
         if (response.status === 401) {
-            // Token expirado
-            this.auth.logout();
+                        this.auth.logout();
             throw new Error('Token expirado. Faça login novamente.');
         }
 
@@ -36,12 +29,7 @@ export class SpotifyAPI {
         return response.json();
     }
 
-    /**
-     * Obtém dados de uma música
-     * @param {string} trackId - ID da música
-     * @returns {Promise<Object>} Dados da música
-     */
-    async getTrackData(trackId) {
+        async getTrackData(trackId) {
         const data = await this.apiCall(`/tracks/${trackId}`);
 
         console.log('data', data)
@@ -57,26 +45,18 @@ export class SpotifyAPI {
         };
     }
 
-    /**
-     * Obtém dados de um álbum
-     * @param {string} albumId - ID do álbum
-     * @returns {Promise<Object>} Dados do álbum
-     */
-    async getAlbumData(albumId) {
+        async getAlbumData(albumId) {
         const albumData = await this.apiCall(`/albums/${albumId}`);
         
-        // Obter todas as faixas do álbum (com paginação se necessário)
-        let totalDurationMs = 0;
+                let totalDurationMs = 0;
         let tracks = albumData.tracks.items;
         let nextUrl = albumData.tracks.next;
         
-        // Somar duração das faixas da primeira página
-        tracks.forEach(track => {
+                tracks.forEach(track => {
             totalDurationMs += track.duration_ms;
         });
         
-        // Paginar se necessário
-        while (nextUrl) {
+                while (nextUrl) {
             const response = await fetch(nextUrl, {
                 headers: {
                     'Authorization': `Bearer ${this.auth.getAccessToken()}`,
@@ -102,12 +82,7 @@ export class SpotifyAPI {
         };
     }
 
-    /**
-     * Obtém dados via oEmbed (não requer autenticação)
-     * @param {string} spotifyUrl - URL do Spotify
-     * @returns {Promise<Object>} Dados básicos da música/álbum
-     */
-    async getOEmbedData(spotifyUrl) {
+        async getOEmbedData(spotifyUrl) {
         const oembedUrl = `https://open.spotify.com/oembed?url=${encodeURIComponent(spotifyUrl)}`;
         const response = await fetch(oembedUrl);
         

@@ -1,10 +1,5 @@
-// ===== UTILITÁRIOS DE FORMATAÇÃO =====
 
-/**
- * Converte milissegundos para texto formatado
- * @param {number} ms - Milissegundos
- * @returns {string} Texto formatado (ex: "3 MIN 45 S")
- */
+
 export function msToText(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -12,13 +7,7 @@ export function msToText(ms) {
     return `${minutes} MIN ${seconds.toString().padStart(2, '0')} S`;
 }
 
-/**
- * Quebra texto em múltiplas linhas baseado na largura máxima
- * @param {CanvasRenderingContext2D} ctx - Contexto do canvas
- * @param {string} text - Texto para quebrar
- * @param {number} maxWidth - Largura máxima
- * @returns {Array<string>} Array de linhas
- */
+
 export function wrapText(ctx, text, maxWidth) {
     const words = text.split(' ');
     const lines = [];

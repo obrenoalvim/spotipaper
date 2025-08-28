@@ -1,12 +1,7 @@
-// ===== UTILITÁRIOS DE CORES =====
 
 import ColorThief from 'colorthief';
 
-/**
- * Extrai paleta de cores de uma imagem
- * @param {string} imgUrl - URL da imagem
- * @returns {Promise<Object>} Objeto com cor dominante e paleta
- */
+
 export async function extractPalette(imgUrl) {
     return new Promise((resolve, reject) => {
         const img = new Image();

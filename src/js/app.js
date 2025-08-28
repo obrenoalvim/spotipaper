@@ -1,4 +1,3 @@
-// ===== APLICAÇÃO PRINCIPAL =====
 
 import { SpotifyAuth } from './services/spotify-auth.js';
 import { SpotifyAPI } from './services/spotify-api.js';
@@ -25,10 +24,6 @@ export class SpotifyWallpaperApp {
         this.init();
     }
 
-    /**
-     * Restaura os controles de personalização para os valores padrão
-     * e descarta quaisquer customizações anteriores
-     */
     resetCustomizationToDefaults() {
         const defaults = {
             bgColor: '#000000',
@@ -57,10 +52,7 @@ export class SpotifyWallpaperApp {
         if (showPalette) showPalette.value = defaults.showPalette;
     }
 
-    /**
-     * Lê valores do painel de personalização
-     */
-    getCustomizationSettings() {
+        getCustomizationSettings() {
         return {
             bgColor: document.getElementById('bgColor')?.value || undefined,
             accentColor: document.getElementById('accentColor')?.value || undefined,
@@ -73,41 +65,28 @@ export class SpotifyWallpaperApp {
         };
     }
 
-    /**
-     * Inicializa a aplicação
-     */
-    init() {
-        // Verificar callback de autenticação
-        this.auth.handleAuthCallback();
+        init() {
+                this.auth.handleAuthCallback();
 
-        // Configurar event listeners
-        this.setupEventListeners();
+                this.setupEventListeners();
 
-        // Simular geração inicial com um exemplo público (sem exigir login)
-        this.simulateInitialRender();
+                this.simulateInitialRender();
     }
 
-    /**
-     * Configura event listeners
-     */
-    setupEventListeners() {
-        // Botão de autenticação
-        document.getElementById('authBtn').addEventListener('click', () => {
+        setupEventListeners() {
+                document.getElementById('authBtn').addEventListener('click', () => {
             this.auth.authenticate();
         });
 
-        // Botão de gerar wallpaper
-        document.getElementById('generateBtn').addEventListener('click', () => {
+                document.getElementById('generateBtn').addEventListener('click', () => {
             this.generateWallpaper(true);
         });
 
-        // Botão de download
-        document.getElementById('downloadBtn').addEventListener('click', () => {
+                document.getElementById('downloadBtn').addEventListener('click', () => {
             downloadWallpaper(this.currentTrackData);
         });
 
-        // Validação em tempo real da URL
-        const urlInput = document.getElementById('spotifyUrl');
+                const urlInput = document.getElementById('spotifyUrl');
         urlInput.addEventListener('input', () => {
             const value = urlInput.value.trim();
             const valid = !!parseSpotifyUrl(value);
@@ -115,14 +94,12 @@ export class SpotifyWallpaperApp {
             urlInput.classList.toggle('is-invalid', value.length > 0 && !valid);            urlInput.setAttribute('aria-invalid', String(!valid && value.length > 0));
         });
 
-        // Enter no campo de URL
-        urlInput.addEventListener('keydown', (e) => {
+                urlInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !document.getElementById('generateBtn').disabled) {
                 this.generateWallpaper(true);
             }
         });
-        // Reagir às mudanças de personalização
-        const customIds = ['bgColor','accentColor','gradientStrength','gradientDirection','textColor','vignetteIntensity','showPalette'];
+                const customIds = ['bgColor','accentColor','gradientStrength','gradientDirection','textColor','vignetteIntensity','showPalette'];
         customIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -132,18 +109,12 @@ export class SpotifyWallpaperApp {
         });
 
     }
-    /**
-     * Re-renderiza usando dados atuais + personalização
-     */
-    async rerenderWithCurrentSettings() {
+        async rerenderWithCurrentSettings() {
         if (!this.currentTrackData) return;
         const settings = this.getCustomizationSettings();
         await this.renderer.renderWallpaper(this.currentTrackData, settings);
     }
-    /**
-     * Gera wallpaper baseado na URL do Spotify
-     */
-    async generateWallpaper(reset = false) {
+        async generateWallpaper(reset = false) {
         const url = document.getElementById('spotifyUrl').value.trim();
         
         if (!url) {
@@ -162,23 +133,19 @@ export class SpotifyWallpaperApp {
 
         try {
             if (reset) {
-                // Resetar UI e estado para defaults, descartando opções anteriores
-                this.resetCustomizationToDefaults();
-                // Limpar canvas/background anterior garantindo estado limpo
-                await this.renderer.reset();
+                                this.resetCustomizationToDefaults();
+                                await this.renderer.reset();
             }
 
             let trackData;
 
             if (this.auth.isAuthenticated()) {
-                // Obter dados baseado no tipo (track ou album)
                 if (parsed.type === 'track') {
                     trackData = await this.api.getTrackData(parsed.id);
                 } else if (parsed.type === 'album') {
                     trackData = await this.api.getAlbumData(parsed.id);
                 }
             } else {
-                // Fallback para oEmbed (sem autenticação)
                 const oembedData = await this.api.getOEmbedData(url);
                 trackData = {
                     type: parsed.type,
@@ -195,31 +162,25 @@ export class SpotifyWallpaperApp {
                 throw new Error('Capa do álbum não encontrada');
             }
 
-            // Extrair paleta de cores
-            const colorData = await extractPalette(trackData.albumCover);
+                        const colorData = await extractPalette(trackData.albumCover);
 
-            // Combinar dados
-            this.currentTrackData = {
+                        this.currentTrackData = {
                 ...trackData,
                 ...colorData,
                 durationText: trackData.durationMs ? msToText(trackData.durationMs) : '—',
                 spotifyCodeImageUrl: generateSpotifyCodeUrl(trackData.spotifyUrl)
             };
 
-            // Se for um novo wallpaper, ajustar acento para a cor dominante extraída
-            if (reset && this.currentTrackData?.dominant) {
+                        if (reset && this.currentTrackData?.dominant) {
                 const accentEl = document.getElementById('accentColor');
                 if (accentEl) accentEl.value = this.currentTrackData.dominant;
             }
 
-            // Renderizar wallpaper
-            await this.renderer.renderWallpaper(this.currentTrackData, this.getCustomizationSettings());
+                        await this.renderer.renderWallpaper(this.currentTrackData, this.getCustomizationSettings());
             
-            // Atualizar interface
-            updateMetadata(this.currentTrackData);
+                        updateMetadata(this.currentTrackData);
             
-            // Habilitar download
-            document.getElementById('downloadBtn').disabled = false;
+                        document.getElementById('downloadBtn').disabled = false;
 
         } catch (error) {
             showError('Erro ao gerar wallpaper: ' + error.message);
@@ -228,18 +189,13 @@ export class SpotifyWallpaperApp {
         }
     }
 
-    /**
-     * Simula uma geração de wallpaper ao carregar a página
-     * Usa oEmbed do Spotify para obter metadados sem autenticação
-     */
-    async simulateInitialRender() {
+        async simulateInitialRender() {
         try {
             const exampleUrl = 'https://open.spotify.com/album/3JfSxDfmwS5OeHPwLSkrfr?si=5ppfaL38QRCkd7ZrHbT8fg';
             const input = document.getElementById('spotifyUrl');
             input.value = exampleUrl;
 
-            // Tenta obter dados via oEmbed (não requer token)
-            const oembedData = await this.api.getOEmbedData(exampleUrl);
+                        const oembedData = await this.api.getOEmbedData(exampleUrl);
             const parsed = parseSpotifyUrl(exampleUrl);
 
             const demoData = {
@@ -252,7 +208,7 @@ export class SpotifyWallpaperApp {
                 spotifyUrl: exampleUrl
             };
 
-            // Extrair paleta
+
             const colorData = await extractPalette(demoData.albumCover);
 
             this.currentTrackData = {
@@ -262,7 +218,6 @@ export class SpotifyWallpaperApp {
                 spotifyCodeImageUrl: generateSpotifyCodeUrl(demoData.spotifyUrl)
             };
 
-            // Ajustar acento com base na cor dominante na renderização inicial
             const accentEl = document.getElementById('accentColor');
             if (accentEl && this.currentTrackData?.dominant) accentEl.value = this.currentTrackData.dominant;
 

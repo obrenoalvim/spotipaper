@@ -274,7 +274,7 @@ body {
     display: none;
 }
 
-/* Personalização */
+
 .customize {
     margin-top: 2rem;
 }
@@ -310,7 +310,7 @@ body {
     display: block;
 }
 
-/* Texto auxiliar (help) */
+
 .help-text {
     display: block;
     margin-top: 0.35rem;
@@ -318,7 +318,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* Botão secundário */
+
 .btn-secondary {
     background: #2c2c2c;
     color: #fff;
@@ -333,7 +333,7 @@ body {
     }
 }
 
-/* Visually hidden (sr-only) */
+
 .sr-only {
     position: absolute !important;
     width: 1px !important;
@@ -346,7 +346,7 @@ body {
     border: 0 !important;
 }
 
-/* Input estados de validação */
+
 .input-group input.is-valid {
     border-color: #1db954;
 }

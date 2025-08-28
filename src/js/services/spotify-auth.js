@@ -1,4 +1,3 @@
-// ===== GERENCIAMENTO DE AUTENTICAÇÃO SPOTIFY =====
 
 import { SPOTIFY_CONFIG } from '../config.js';
 import { generateRandomString, generateCodeChallenge } from '../utils/crypto-utils.js';
@@ -10,10 +9,7 @@ export class SpotifyAuth {
         this.init();
     }
 
-    /**
-     * Inicializa a autenticação verificando token salvo
-     */
-    init() {
+        init() {
         const savedToken = sessionStorage.getItem('spotify_access_token');
         if (savedToken) {
             this.accessToken = savedToken;
@@ -21,10 +17,7 @@ export class SpotifyAuth {
         }
     }
 
-    /**
-     * Inicia processo de autenticação OAuth2 com PKCE
-     */
-    async authenticate() {
+        async authenticate() {
         const codeVerifier = generateRandomString(64);
         const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -46,10 +39,7 @@ export class SpotifyAuth {
         window.location = authUrl;
     }
 
-    /**
-     * Processa callback de autenticação
-     */
-    async handleAuthCallback() {
+        async handleAuthCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const error = urlParams.get('error');
@@ -88,8 +78,7 @@ export class SpotifyAuth {
                     sessionStorage.setItem('spotify_access_token', this.accessToken);
                     this.updateAuthStatus(true);
                     
-                    // Limpar URL
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                                        window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
                     showError('Erro ao obter token: ' + (data.error_description || data.error));
                 }
@@ -99,10 +88,6 @@ export class SpotifyAuth {
         }
     }
 
-    /**
-     * Atualiza status de autenticação na interface
-     * @param {boolean} isAuthenticated - Se está autenticado
-     */
     updateAuthStatus(isAuthenticated) {
         const statusIndicator = document.getElementById('statusIndicator');
         const authStatus = document.getElementById('authStatus');
@@ -120,39 +105,24 @@ export class SpotifyAuth {
             authBtn.textContent = 'Reconectar';
             generateBtn.disabled = false;
             authSection.classList.add('authenticated');
-            // Esconde completamente a seção de conexão quando já está autenticado
-            authSection.style.display = 'none';
+                        authSection.style.display = 'none';
         } else {
             statusIndicator.classList.remove('connected');
             authStatus.textContent = 'Desconectado do Spotify';
             authBtn.textContent = 'Conectar com Spotify';
-            // Não desabilitar o botão de gerar para permitir uso do oEmbed sem login
-            // generateBtn.disabled = true;
-            authSection.classList.remove('authenticated');
-            // Garante que a seção fique visível quando não autenticado
-            authSection.style.display = '';
+                        authSection.classList.remove('authenticated');
+                        authSection.style.display = '';
         }
     }
 
-    /**
-     * Verifica se está autenticado
-     * @returns {boolean} Se está autenticado
-     */
     isAuthenticated() {
         return !!this.accessToken;
     }
 
-    /**
-     * Obtém o token de acesso
-     * @returns {string|null} Token de acesso
-     */
     getAccessToken() {
         return this.accessToken;
     }
 
-    /**
-     * Remove autenticação
-     */
     logout() {
         this.accessToken = null;
         sessionStorage.removeItem('spotify_access_token');

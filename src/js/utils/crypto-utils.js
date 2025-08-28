@@ -1,10 +1,5 @@
-// ===== UTILITÁRIOS CRIPTOGRÁFICOS PARA PKCE =====
 
-/**
- * Gera uma string aleatória para PKCE
- * @param {number} length - Comprimento da string
- * @returns {string} String aleatória
- */
+
 export function generateRandomString(length) {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
     let text = '';
@@ -14,11 +9,7 @@ export function generateRandomString(length) {
     return text;
 }
 
-/**
- * Gera code challenge para PKCE
- * @param {string} codeVerifier - Code verifier
- * @returns {Promise<string>} Code challenge
- */
+
 export async function generateCodeChallenge(codeVerifier) {
     const encoder = new TextEncoder();
     const data = encoder.encode(codeVerifier);
